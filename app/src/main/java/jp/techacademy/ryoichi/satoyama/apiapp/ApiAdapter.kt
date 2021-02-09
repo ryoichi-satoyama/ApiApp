@@ -14,6 +14,11 @@ import com.squareup.picasso.Picasso
 class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val items = mutableListOf<Shop>()
 
+
+
+    var onClickAddFavorite: ((Shop) -> Unit)? = null
+    var onClickDelteFavorite: ((Shop) -> Unit)? = null
+
     fun refresh(list: List<Shop>) {
         items.apply {
             clear()
@@ -46,6 +51,8 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
 
     private fun updateApiItemViewHolder(holder: ApiItemViewHolder, position: Int) {
         val data = items[position]
+        val isFavorite = FavoriteShop.findBy(data.id) != null
+
         holder.apply {
             rootView.apply {
                 setBackgroundColor(ContextCompat.getColor(context,
@@ -54,6 +61,17 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
             nameTextView.text = data.name
             Picasso.get().load(data.logoImage).into(imageView)
             favoriteImageView.setImageResource(R.drawable.ic_star_border)
+            favoriteImageView.apply {
+                setImageResource(R.drawable.ic_star_border)
+                setOnClickListener {
+                    if(isFavorite) {
+                        onClickDelteFavorite?.invoke(data)
+                    } else {
+                        onClickAddFavorite?.invoke(data)
+                    }
+                    notifyItemChanged(position)
+                }
+            }
         }
     }
 }

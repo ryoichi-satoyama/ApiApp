@@ -18,6 +18,9 @@ import java.io.IOException
 class ApiFragment : Fragment() {
     private val apiAdapter by lazy { ApiAdapter(requireContext()) }
     private val handler = Handler(Looper.getMainLooper())
+
+    private var fragmentCallback: FragmentCallback? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -75,6 +78,10 @@ class ApiFragment : Fragment() {
                 }
             }
         })
+    }
+
+    fun updateView() {
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 
     private fun updateRecyclerView(list: List<Shop>) {
