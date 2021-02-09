@@ -1,4 +1,4 @@
-package layout
+package jp.techacademy.ryoichi.satoyama.apiapp
 import com.google.gson.annotations.SerializedName
 
 
