@@ -36,6 +36,10 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
     }
 
+    override fun onClickItem(url: String) {
+        WebViewActivity.start(this, url)
+    }
+
     companion object {
         private const val VIEW_PAGER_POSITION_API = 0
         private const val VIEW_PAGER_POSITION_FAVORITE = 1

@@ -1,5 +1,6 @@
 package jp.techacademy.ryoichi.satoyama.apiapp
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -29,8 +30,28 @@ class ApiFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_api, container, false)
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if(context is FragmentCallback) {
+            fragmentCallback = context
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        apiAdapter.apply {
+            onClickAddFavorite = {
+                fragmentCallback?.onAddFavorite(it)
+            }
+            onClickDelteFavorite = {
+                fragmentCallback?.onDeleteFavorite(it.id)
+            }
+
+            onClickItem = {
+                fragmentCallback?.onClickItem(it)
+            }
+        }
 
         recyclerView.apply {
             adapter = apiAdapter

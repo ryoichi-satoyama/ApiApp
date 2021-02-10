@@ -18,6 +18,7 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
 
     var onClickAddFavorite: ((Shop) -> Unit)? = null
     var onClickDelteFavorite: ((Shop) -> Unit)? = null
+    var onClickItem: ((String) -> Unit)? = null
 
     fun refresh(list: List<Shop>) {
         items.apply {
@@ -57,12 +58,15 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
             rootView.apply {
                 setBackgroundColor(ContextCompat.getColor(context,
                 if (position % 2 == 0) android.R.color.white else android.R.color.darker_gray))
+                setOnClickListener {
+                    onClickItem?.invoke(if(data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc)
+                }
             }
             nameTextView.text = data.name
             Picasso.get().load(data.logoImage).into(imageView)
             favoriteImageView.setImageResource(R.drawable.ic_star_border)
             favoriteImageView.apply {
-                setImageResource(R.drawable.ic_star_border)
+                setImageResource(if(isFavorite) R.drawable.ic_star else R.drawable.ic_star_border)
                 setOnClickListener {
                     if(isFavorite) {
                         onClickDelteFavorite?.invoke(data)

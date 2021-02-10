@@ -14,6 +14,9 @@ class FavoriteFragment: Fragment() {
     private var fragmentCallback: FragmentCallback? = null
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        if (context is FragmentCallback) {
+            fragmentCallback = context
+        }
     }
 
     override fun onCreateView(
@@ -21,7 +24,7 @@ class FavoriteFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)
+        return inflater.inflate(R.layout.fragment_favorite, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -29,6 +32,10 @@ class FavoriteFragment: Fragment() {
         favoriteAdapter.apply {
             onClickDeleteFavorite = {
                 fragmentCallback?.onDeleteFavorite(it.id)
+            }
+
+            onClickItem = {
+                fragmentCallback?.onClickItem(it)
             }
         }
 
