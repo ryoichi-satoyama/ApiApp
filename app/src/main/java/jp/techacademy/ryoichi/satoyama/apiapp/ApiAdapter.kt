@@ -14,15 +14,23 @@ import com.squareup.picasso.Picasso
 class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val items = mutableListOf<Shop>()
 
-
-
     var onClickAddFavorite: ((Shop) -> Unit)? = null
-    var onClickDelteFavorite: ((Shop) -> Unit)? = null
+    var onClickDeleteFavorite: ((Shop) -> Unit)? = null
     var onClickItem: ((String) -> Unit)? = null
 
     fun refresh(list: List<Shop>) {
+        update(list, false)
+    }
+
+    fun add(list: List<Shop>) {
+        update(list, true)
+    }
+
+    fun update(list: List<Shop>, isAdd: Boolean) {
         items.apply {
-            clear()
+            if (!isAdd) {
+                clear()
+            }
             addAll(list)
         }
         notifyDataSetChanged()
@@ -69,7 +77,7 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
                 setImageResource(if(isFavorite) R.drawable.ic_star else R.drawable.ic_star_border)
                 setOnClickListener {
                     if(isFavorite) {
-                        onClickDelteFavorite?.invoke(data)
+                        onClickDeleteFavorite?.invoke(data)
                     } else {
                         onClickAddFavorite?.invoke(data)
                     }

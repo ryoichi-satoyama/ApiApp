@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_api.*
 import okhttp3.*
@@ -21,6 +22,10 @@ class ApiFragment : Fragment() {
     private val handler = Handler(Looper.getMainLooper())
 
     private var fragmentCallback: FragmentCallback? = null
+
+    private var page = 0
+
+    private var isLoading = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,7 +49,7 @@ class ApiFragment : Fragment() {
             onClickAddFavorite = {
                 fragmentCallback?.onAddFavorite(it)
             }
-            onClickDelteFavorite = {
+            onClickDeleteFavorite = {
                 fragmentCallback?.onDeleteFavorite(it.id)
             }
 
@@ -56,6 +61,20 @@ class ApiFragment : Fragment() {
         recyclerView.apply {
             adapter = apiAdapter
             layoutManager = LinearLayoutManager(requireContext())
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if(dy == 0) {
+                        return
+                    }
+                    val totalCount = apiAdapter.itemCount
+                    val lastVisibleItem = (layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+                    if(!isLoading && lastVisibleItem >= totalCount - 6) {
+                        updateData(true)
+                    }
+                }
+            })
         }
         swipeRefreshLayout.setOnRefreshListener {
             updateData()
@@ -63,11 +82,23 @@ class ApiFragment : Fragment() {
         updateData()
     }
 
-    private fun updateData() {
+    private fun updateData(isAdd: Boolean = false) {
+        if(isLoading) {
+            return
+        } else {
+            isLoading = true
+        }
+
+        if(isAdd) {
+            page++
+        } else {
+            page = 0
+        }
+        val start = page * COUNT + 1
         val url = StringBuilder()
             .append(getString(R.string.base_url))
             .append("?key=").append(getString(R.string.api_key))
-            .append("&start=").append(1)
+            .append("&start=").append(start)
             .append("&count=").append(COUNT)
             .append("&keyword=").append(getString(R.string.api_keyword))
             .append("&format=json")
@@ -84,19 +115,21 @@ class ApiFragment : Fragment() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 handler.post{
-                    updateRecyclerView(listOf())
+                    updateRecyclerView(listOf(), isAdd)
                 }
+                isLoading = false
             }
 
             override fun onResponse(call: Call, response: Response) {
                 var list = listOf<Shop>()
                 response.body?.string()?.also {
-                    val apiResponce = Gson().fromJson(it, ApiResponse::class.java)
-                    list = apiResponce.results.shop
+                    val adiResponse = Gson().fromJson(it, ApiResponse::class.java)
+                    list = adiResponse.results.shop
                 }
                 handler.post {
-                    updateRecyclerView(list)
+                    updateRecyclerView(list, isAdd)
                 }
+                isLoading = false
             }
         })
     }
@@ -105,8 +138,12 @@ class ApiFragment : Fragment() {
         recyclerView.adapter?.notifyDataSetChanged()
     }
 
-    private fun updateRecyclerView(list: List<Shop>) {
-        apiAdapter.refresh(list)
+    private fun updateRecyclerView(list: List<Shop>, isAdd: Boolean) {
+        if(isAdd) {
+            apiAdapter.add(list)
+        } else {
+            apiAdapter.refresh(list)
+        }
         swipeRefreshLayout.isRefreshing = false
     }
 
