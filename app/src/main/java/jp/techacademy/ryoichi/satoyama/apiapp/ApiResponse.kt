@@ -31,4 +31,4 @@ data class CouponUrls(
     val pc: String,
     @SerializedName("sp")
     val sp: String
-)
+): Serializable

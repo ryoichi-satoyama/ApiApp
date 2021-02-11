@@ -15,7 +15,7 @@ class FavoriteAdapter(private val context: Context): RecyclerView.Adapter<Recycl
     private val items = mutableListOf<FavoriteShop>()
     var onClickDeleteFavorite: ((FavoriteShop) -> Unit)? = null
 //    var onClickItem: ((String) -> Unit)? = null
-    var onClickItem: ((String, String, Boolean) -> Unit)? = null
+    var onClickItem: ((String, Shop, Boolean) -> Unit)? = null
 
     fun refresh(list: List<FavoriteShop>) {
         items.apply {
@@ -60,7 +60,8 @@ class FavoriteAdapter(private val context: Context): RecyclerView.Adapter<Recycl
             rootView.apply {
                 setOnClickListener {
 //                    onClickItem?.invoke(data.url)
-                    onClickItem?.invoke(data.url, data.id, true)
+                    var shop = Shop(CouponUrls(data.url, data.url), data.id, data.imageUrl, data.name, data.address)
+                    onClickItem?.invoke(data.url, shop, true)
                 }
                 setBackgroundColor(ContextCompat.getColor(context,
                 if(position % 2 == 0) android.R.color.white else android.R.color.darker_gray))

@@ -40,8 +40,11 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
     //    override fun onClickItem(url: String) {
 //        WebViewActivity.start(this, url)
 //    }
-    override fun onClickItem(url: String, shopId: String, isFavorite: Boolean) {
-        WebViewActivity.start(this, url, shopId, isFavorite)
+//    override fun onClickItem(url: String, shopId: String, isFavorite: Boolean) {
+//        WebViewActivity.start(this, url, shopId, isFavorite)
+//    }
+    override fun onClickItem(url: String, shop: Shop, isFavorite: Boolean) {
+        WebViewActivity.start(this, shop, isFavorite)
     }
 //    override fun onClickItem(shop: Shop) {
 //        WebViewActivity.start(this, shop)
