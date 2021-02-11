@@ -24,7 +24,7 @@ data class Shop(
     val name: String,
     @SerializedName("address")
     val address: String
-)
+): Serializable
 
 data class CouponUrls(
     @SerializedName("pc")

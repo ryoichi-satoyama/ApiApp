@@ -13,6 +13,7 @@ class WebViewActivity : AppCompatActivity() {
 //    private val isFavorite: Boolean by lazy {isFavorite}
     private var isFavorite = false
     private var shopId: String? = ""
+    private lateinit var shop: Shop
     var onClickAddFavorite: ((Shop) -> Unit)? = null
     var onClickDeleteFavorite: ((Shop) -> Unit)? = null
 
@@ -20,8 +21,9 @@ class WebViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
         webView.loadUrl(intent.getStringExtra(KEY_URL).toString())
-        isFavorite = intent.getBooleanExtra("isFavorite", false)
-        shopId = intent.getStringExtra("shopId")
+//        isFavorite = intent.getBooleanExtra("isFavorite", false)
+//        shopId = intent.getStringExtra("shopId")
+        shop = intent.getSerializableExtra("shop") as Shop
     }
 
     companion object {
@@ -58,8 +60,10 @@ class WebViewActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if(item.itemId == R.id.favoriteButton) {
-            val realm = Realm.getDefaultInstance()
-            realm.close()
+//            val realm = Realm.getDefaultInstance()
+//            realm.close()
+            //TODO FavoriteShopのオブジェクトを作成してinsertやdeleteを実装
+
             item.apply {
                 //Realm更新処理
                 isFavorite = if(isFavorite) {

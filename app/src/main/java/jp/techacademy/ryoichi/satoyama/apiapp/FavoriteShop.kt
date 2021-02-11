@@ -12,8 +12,10 @@ open class FavoriteShop: RealmObject() {
     var name: String = ""
     var address: String = ""
     var url: String = ""
+    //TODO 論理削除用のフラグを作成
 
     companion object {
+        //todo 論理削除　フラグでフィルターを行う
         fun findAll(): List<FavoriteShop> =
             Realm.getDefaultInstance().use {realm ->
                 realm.where(FavoriteShop::class.java).findAll().let { realm.copyFromRealm(it) }
@@ -33,6 +35,7 @@ open class FavoriteShop: RealmObject() {
                 it.insertOrUpdate(favoriteShop)
             }
 
+        //todo 論理削除　フラグを変更
         fun delete(id: String): FavoriteShop? =
             Realm.getDefaultInstance().use { realm->
                 realm.where(FavoriteShop::class.java)
