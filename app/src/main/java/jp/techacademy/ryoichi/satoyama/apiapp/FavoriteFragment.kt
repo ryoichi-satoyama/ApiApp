@@ -34,9 +34,10 @@ class FavoriteFragment: Fragment() {
                 fragmentCallback?.onDeleteFavorite(it.id)
             }
 
-            onClickItem = {
-                fragmentCallback?.onClickItem(it)
-            }
+//            onClickItem = {
+//                fragmentCallback?.onClickItem(it)
+//            }
+            onClickItem = {url: String, shopId: String, isFavorite: Boolean -> fragmentCallback?.onClickItem(url, shopId, isFavorite)}
         }
 
         recyclerView.apply {

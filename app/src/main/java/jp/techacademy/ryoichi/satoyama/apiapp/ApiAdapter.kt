@@ -16,7 +16,8 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
 
     var onClickAddFavorite: ((Shop) -> Unit)? = null
     var onClickDeleteFavorite: ((Shop) -> Unit)? = null
-    var onClickItem: ((String) -> Unit)? = null
+//    var onClickItem: ((String) -> Unit)? = null
+    var onClickItem: ((String, String, Boolean) -> Unit)? = null
 
     fun refresh(list: List<Shop>) {
         update(list, false)
@@ -68,7 +69,8 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
                 setBackgroundColor(ContextCompat.getColor(context,
                 if (position % 2 == 0) android.R.color.white else android.R.color.darker_gray))
                 setOnClickListener {
-                    onClickItem?.invoke(if(data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc)
+//                    onClickItem?.invoke(if(data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc)
+                    onClickItem?.invoke(if(data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc, data.id, isFavorite)
                 }
             }
             nameTextView.text = data.name

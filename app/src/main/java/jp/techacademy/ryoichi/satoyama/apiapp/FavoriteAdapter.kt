@@ -14,7 +14,8 @@ import com.squareup.picasso.Picasso
 class FavoriteAdapter(private val context: Context): RecyclerView.Adapter<RecyclerView.ViewHolder>()  {
     private val items = mutableListOf<FavoriteShop>()
     var onClickDeleteFavorite: ((FavoriteShop) -> Unit)? = null
-    var onClickItem: ((String) -> Unit)? = null
+//    var onClickItem: ((String) -> Unit)? = null
+    var onClickItem: ((String, String, Boolean) -> Unit)? = null
 
     fun refresh(list: List<FavoriteShop>) {
         items.apply {
@@ -58,7 +59,8 @@ class FavoriteAdapter(private val context: Context): RecyclerView.Adapter<Recycl
         holder.apply {
             rootView.apply {
                 setOnClickListener {
-                    onClickItem?.invoke(data.url)
+//                    onClickItem?.invoke(data.url)
+                    onClickItem?.invoke(data.url, data.id, true)
                 }
                 setBackgroundColor(ContextCompat.getColor(context,
                 if(position % 2 == 0) android.R.color.white else android.R.color.darker_gray))

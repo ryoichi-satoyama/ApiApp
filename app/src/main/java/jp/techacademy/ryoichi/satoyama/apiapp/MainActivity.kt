@@ -21,8 +21,8 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
             offscreenPageLimit = viewPagerAdapter.itemCount
         }
 
-        TabLayoutMediator(tabLayout, viewPager2) {
-            tab, position -> tab.setText(viewPagerAdapter.titleIds[position])
+        TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
+            tab.setText(viewPagerAdapter.titleIds[position])
         }.attach()
     }
 
@@ -37,9 +37,15 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
     }
 
-    override fun onClickItem(url: String) {
-        WebViewActivity.start(this, url)
+    //    override fun onClickItem(url: String) {
+//        WebViewActivity.start(this, url)
+//    }
+    override fun onClickItem(url: String, shopId: String, isFavorite: Boolean) {
+        WebViewActivity.start(this, url, shopId, isFavorite)
     }
+//    override fun onClickItem(shop: Shop) {
+//        WebViewActivity.start(this, shop)
+//    }
 
     companion object {
         private const val VIEW_PAGER_POSITION_API = 0
@@ -57,7 +63,7 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 deleteFavorite(id)
             }
-            .setNegativeButton(android.R.string.cancel) { _, _ ->}
+            .setNegativeButton(android.R.string.cancel) { _, _ -> }
             .create()
             .show()
     }
