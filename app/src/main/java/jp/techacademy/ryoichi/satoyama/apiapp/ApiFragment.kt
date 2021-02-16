@@ -21,10 +21,12 @@ class ApiFragment : Fragment() {
     private val apiAdapter by lazy { ApiAdapter(requireContext()) }
     private val handler = Handler(Looper.getMainLooper())
 
+    // Fragment -> Activity にFavoriteの変更を通知する
     private var fragmentCallback: FragmentCallback? = null
 
     private var page = 0
 
+    // Apiでデータを読み込み中ですフラグ。追加ページの読み込みの時にこれがないと、連続して読み込んでしまうので、それの制御のため
     private var isLoading = false
 
     override fun onCreateView(
@@ -32,6 +34,7 @@ class ApiFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // fragment_api.xmlが反映されたViewを作成して、returnします
         return inflater.inflate(R.layout.fragment_api, container, false)
     }
 
@@ -44,32 +47,45 @@ class ApiFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // ここから初期化処理を行う
+        // RecyclerViewの初期化
 
+        // ApiAdapterのお気に入り追加、削除用のメソッドの追加を行う
         apiAdapter.apply {
+            // Adapterの処理をそのままActivityに通知する
             onClickAddFavorite = {
                 fragmentCallback?.onAddFavorite(it)
             }
+            // Adapterの処理をそのままActivityに通知する
             onClickDeleteFavorite = {
                 fragmentCallback?.onDeleteFavorite(it.id)
             }
 
+            // Itemをクリックしたとき
 //            onClickItem = {
 //                fragmentCallback?.onClickItem(it)
 //            }
             onClickItem = {url: String, shop: Shop, isFavorite: Boolean -> fragmentCallback?.onClickItem(url, shop, isFavorite)}
         }
 
+        // RecyclerViewの初期化
         recyclerView.apply {
             adapter = apiAdapter
             layoutManager = LinearLayoutManager(requireContext())
 
+            // Scrollを検知するListenerを実装する。これによって、RecyclerViewの下端に近づいた時に次のページを読み込んで、下に付け足す
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                // dx はx軸方向の変化量(横) dy はy軸方向の変化量(縦) ここではRecyclerViewは縦方向なので、dyだけ考慮する
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
-                    if(dy == 0) {
+                    if(dy == 0) { // 縦方向の変化量(スクロール量)が0の時は動いていないので何も処理はしない
                         return
                     }
                     val totalCount = apiAdapter.itemCount
+                    // totalCountとlastVisibleItemから全体のアイテム数のうちどこまでが見えているかがわかる(例:totalCountが20、lastVisibleItemが15の時は、現在のスクロール位置から下に5件見えていないアイテムがある)
+                    // 一番下にスクロールした時に次の20件を表示する等の実装が可能になる。
+                    // ユーザビリティを考えると、一番下にスクロールしてから追加した場合、一度スクロールが止まるので、ユーザーは気付きにくい
+                    // ここでは、一番下から5番目を表示した時に追加読み込みする様に実装する
                     val lastVisibleItem = (layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
                     if(!isLoading && lastVisibleItem >= totalCount - 6) {
                         updateData(true)
@@ -97,12 +113,12 @@ class ApiFragment : Fragment() {
         }
         val start = page * COUNT + 1
         val url = StringBuilder()
-            .append(getString(R.string.base_url))
-            .append("?key=").append(getString(R.string.api_key))
-            .append("&start=").append(start)
-            .append("&count=").append(COUNT)
-            .append("&keyword=").append(getString(R.string.api_keyword))
-            .append("&format=json")
+            .append(getString(R.string.base_url)) // https://webservice.recruit.co.jp/hotpepper/gourmet/v1/
+            .append("?key=").append(getString(R.string.api_key)) // Apiを使うためのApiKey
+            .append("&start=").append(start) // 何件目からのデータを取得するか
+            .append("&count=").append(COUNT) // 1回で20件取得する
+            .append("&keyword=").append(getString(R.string.api_keyword)) // お店の検索ワード。ここでは例として「ランチ」を検索
+            .append("&format=json") // ここで利用しているAPIは戻りの形をxmlかjsonが選択することができる。Androidで扱う場合はxmlよりもjsonの方が扱いやすいので、jsonを選択
             .toString()
         val client = OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
@@ -113,15 +129,16 @@ class ApiFragment : Fragment() {
             .url(url)
             .build()
         client.newCall(request).enqueue(object : Callback{
-            override fun onFailure(call: Call, e: IOException) {
+            override fun onFailure(call: Call, e: IOException) { // Error時の処理
                 e.printStackTrace()
                 handler.post{
                     updateRecyclerView(listOf(), isAdd)
                 }
+                // 読み込み中フラグを折る
                 isLoading = false
             }
 
-            override fun onResponse(call: Call, response: Response) {
+            override fun onResponse(call: Call, response: Response) { // 成功時の処理
                 var list = listOf<Shop>()
                 response.body?.string()?.also {
                     val adiResponse = Gson().fromJson(it, ApiResponse::class.java)
@@ -130,12 +147,15 @@ class ApiFragment : Fragment() {
                 handler.post {
                     updateRecyclerView(list, isAdd)
                 }
+                // 読み込み中フラグを折る
                 isLoading = false
             }
         })
     }
 
+    // お気に入りが削除されたときの処理（Activityからコールされる）
     fun updateView() {
+        // RecyclerViewのAdapterに対して再描画のリクエストをする
         recyclerView.adapter?.notifyDataSetChanged()
     }
 
@@ -145,10 +165,10 @@ class ApiFragment : Fragment() {
         } else {
             apiAdapter.refresh(list)
         }
-        swipeRefreshLayout.isRefreshing = false
+        swipeRefreshLayout.isRefreshing = false // SwipeRefreshLayoutのくるくるを消す
     }
 
     companion object {
-        private const val COUNT = 20
+        private const val COUNT = 20 // 1回のAPIで取得する件数
     }
 }

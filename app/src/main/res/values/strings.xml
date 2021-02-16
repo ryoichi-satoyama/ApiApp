@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">ApiApp</string>
+    <!-- TabLayoutのタイトル -->
     <string name="tab_title_api">新着順</string>
     <string name="tab_title_favorite">お気に入り</string>
 
@@ -8,6 +9,7 @@
     <string name="api_key">3cfc095e6c078e77</string>
     <string name="api_keyword">ランチ</string>
 
+    <!-- Favorite関連 -->
     <string name="delete_favorite_dialog_title">お気に入りの削除</string>
     <string name="delete_favorite_dialog_message">お気に入りを削除しますか？</string>
     <string name="empty_favorite">お気に入りはまだ登録されていません。</string>

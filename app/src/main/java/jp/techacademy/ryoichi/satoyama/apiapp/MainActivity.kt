@@ -15,18 +15,25 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // ViewPager2の初期化
         viewPager2.apply {
             adapter = viewPagerAdapter
+            // スワイプの向き横（ORIENTATION_VERTICAL を指定すれば縦スワイプで実装可能です）
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
+            // ViewPager2で保持する画面数
             offscreenPageLimit = viewPagerAdapter.itemCount
         }
 
+        // TabLayoutの初期化
+        // TabLayoutとViewPager2を紐づける
+        // TabLayoutのTextを指定する
         TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
-            tab.setText(viewPagerAdapter.titleIds[position])
+            tab.setText(viewPagerAdapter.titleIds[position]) // positionごとのタブの名前を決める
         }.attach()
     }
 
-    override fun onAddFavorite(shop: Shop) { // Favoriteに追加するときのメソッド(Fragment -> Activity へ通知する)
+    // Favoriteに追加するときのメソッド(Fragment -> Activity へ通知する)
+    override fun onAddFavorite(shop: Shop) {
         FavoriteShop.insert(FavoriteShop().apply {
             id = shop.id
             name = shop.name
@@ -55,7 +62,8 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         private const val VIEW_PAGER_POSITION_FAVORITE = 1
     }
 
-    override fun onDeleteFavorite(id: String) { // Favoriteから削除するときのメソッド(Fragment -> Activity へ通知する)
+    // Favoriteから削除するときのメソッド(Fragment -> Activity へ通知する)
+    override fun onDeleteFavorite(id: String) {
         showConfirmDeleteFavoriteDialog(id)
     }
 
